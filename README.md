@@ -62,9 +62,76 @@ Automatically act on your data and communicate using third-party services like T
 
 # PROGRAM:
 
+```
+/*
+To write a program to upload the Soil moisture sensor data in the Thing speak using an ESP32 controller.
+Developed by: Jhagan B
+RegisterNumber:  212220040066
+*/
+
+#include <WiFi.h>
+#include "secrets.h"
+#include "ThingSpeak.h" // always include thingspeak header file after other header files and custom macros
+#define Soil_Moisture 02
+char ssid[] = "Anish";   // your network SSID (name) 
+char pass[] = "tn758313";   // your network password
+int keyIndex = 0;            // your network key Index number (needed only for WEP)
+WiFiClient  client;
+
+unsigned long myChannelNumber = 1870717;
+const char * myWriteAPIKey = "IXWWM4G5GCKTTQ4Q";
+
+void setup() {
+  Serial.begin(115200);  //Initialize serial
+  pinMode(Soil_Moisture, INPUT);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for Leonardo native USB port only
+  }
+  
+  WiFi.mode(WIFI_STA);   
+  ThingSpeak.begin(client);  // Initialize ThingSpeak
+}
+
+void loop() {
+
+  // Connect or reconnect to WiFi
+  if(WiFi.status() != WL_CONNECTED){
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(SECRET_SSID);
+    while(WiFi.status() != WL_CONNECTED){
+      WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+      Serial.print(".");
+      delay(5000);     
+    } 
+    Serial.println("\nConnected.");
+  }
+  /* Soil MoistureSensor */
+  int Soil_Value = digitalRead(Soil_Moisture);
+  Serial.println(Soil_Value);
+  // Write to ThingSpeak. There are up to 8 fields in a channel, allowing you to store up to 8 different
+  // pieces of information in a channel.  Here, we write to field 1.
+  int x = ThingSpeak.writeField(myChannelNumber, 1, Soil_Value, myWriteAPIKey);
+  if(x == 200){
+    Serial.println("Channel update successful.");
+  }
+  else{
+    Serial.println("Problem updating channel. HTTP error code " + String(x));
+  }
+  
+  delay(20000); // Wait 20 seconds to update the channel again
+}
+
+```
+
 # CIRCUIT DIAGRAM:
 
+![image](https://github.com/jhaganb/Soil-moisture-monitoring-using-Thing-speak/assets/63654882/fc9ee529-2a03-468c-9870-a3e14b818b00)
+  
 # OUTPUT:
+
+![image](https://github.com/jhaganb/Soil-moisture-monitoring-using-Thing-speak/assets/63654882/d1e3146a-b9b5-4ce8-bd49-2febeb05d899)
+
+![image](https://github.com/jhaganb/Soil-moisture-monitoring-using-Thing-speak/assets/63654882/17d52dc3-a2b6-466d-93cd-11db223d1756)
 
 # RESULT:
 Thus the soil moisture sensor values are uploaded in the Thing speak using ESP32 controller.
